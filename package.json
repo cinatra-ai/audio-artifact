@@ -1,6 +1,6 @@
 {
   "name": "@cinatra-ai/audio-artifact",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "Apache-2.0",
   "type": "module",
   "packageManager": "pnpm@9.15.9",
@@ -58,7 +58,60 @@
             ]
           }
         }
-      }
+      },
+      "objectTypes": [
+        {
+          "type": "@cinatra-ai/audio-artifact:recording",
+          "claim": "dedicated",
+          "dispositions": {
+            "projection": "artifact-safe",
+            "pinnable": false,
+            "snapshotPolicy": "metadata",
+            "sensitivity": "normal",
+            "mutability": "record"
+          },
+          "schema": {
+            "type": "object",
+            "properties": {
+              "artifactType": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "mime": {
+                "type": "string"
+              },
+              "size": {
+                "type": "number"
+              },
+              "originKind": {
+                "type": "string"
+              },
+              "latestRepresentationRevisionId": {
+                "type": "string"
+              },
+              "latestDigest": {
+                "type": "string"
+              },
+              "viewerHint": {
+                "type": "string"
+              },
+              "excerpt": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "artifactType",
+              "mime",
+              "size",
+              "originKind",
+              "latestRepresentationRevisionId"
+            ],
+            "additionalProperties": true
+          }
+        }
+      ]
     }
   }
 }
