@@ -23,6 +23,18 @@ const pkg = JSON.parse(
         sdkAbiRange: string;
         renderers: Record<string, { entry: string; propsApiVersion: number; representations?: string[] }>;
       };
+      objectTypes?: Array<{
+        type: string;
+        claim: string;
+        dispositions?: {
+          projection?: string;
+          pinnable?: boolean;
+          snapshotPolicy?: string;
+          sensitivity?: string;
+          mutability?: string;
+        };
+        schema?: { type?: string; properties?: Record<string, unknown>; required?: string[]; additionalProperties?: boolean };
+      }>;
     };
   };
 };
@@ -54,12 +66,53 @@ describe("package.json manifest — the system-base audio identity", () => {
     expect(pkg.cinatra.dependencies).toEqual([]);
   });
 
-  it("declares only the allowed cinatra.* keys (no matcher/objectTypes claim)", () => {
+  it("declares only the allowed cinatra.* keys (no matcher skill bundle)", () => {
     for (const k of Object.keys(pkg.cinatra)) {
       expect(ARTIFACT_ALLOWED_CINATRA_KEYS.has(k)).toBe(true);
     }
     // A renderer artifact ships no matcher skill bundle.
     expect("skills" in pkg.cinatra.artifact).toBe(false);
+  });
+
+  // Ratified upload-typing model (epic cinatra#1785, owner entry 106-B): a
+  // REQUIRED system-base pack must DECLARE the object type its mime map
+  // persists uploads under. The old pure-renderer model (zero objectTypes)
+  // registered no type post-#1824, so the audio mime map resolved to nothing.
+  it("DECLARES exactly one explicit uploaded-audio object type (cinatra#1785)", () => {
+    const claims = pkg.cinatra.artifact.objectTypes;
+    expect(Array.isArray(claims)).toBe(true);
+    expect(claims).toHaveLength(1);
+
+    const [claim] = claims!;
+    // Namespaced, self-registered under this package's own namespace.
+    expect(claim.type).toBe("@cinatra-ai/audio-artifact:recording");
+    expect(claim.type.startsWith(`${pkg.name}:`)).toBe(true);
+    expect(claim.claim).toBe("dedicated");
+
+    // Artifact-safe projection; an uploaded audio blob is an immutable record,
+    // snapshotted by metadata (not its bytes) and not pinnable into context.
+    expect(claim.dispositions).toEqual({
+      projection: "artifact-safe",
+      pinnable: false,
+      snapshotPolicy: "metadata",
+      sensitivity: "normal",
+      mutability: "record",
+    });
+
+    // The claim ships an inline schema (a self-registered type still ships one)
+    // matching the persisted uploaded-object metadata shape (ArtifactObjectData).
+    expect(claim.schema?.type).toBe("object");
+    const props = claim.schema?.properties ?? {};
+    for (const key of ["artifactType", "mime", "size", "originKind", "latestRepresentationRevisionId"]) {
+      expect(key in props).toBe(true);
+    }
+    expect(claim.schema?.required).toEqual([
+      "artifactType",
+      "mime",
+      "size",
+      "originKind",
+      "latestRepresentationRevisionId",
+    ]);
   });
 
   it("CLAIMS EXACTLY audio/* and nothing else", () => {

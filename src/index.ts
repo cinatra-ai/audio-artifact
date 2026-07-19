@@ -1,9 +1,15 @@
 // `@cinatra-ai/audio-artifact` — the system-base audio renderer.
 //
 // A renderer artifact: it ships a `detail`-slot renderer for the `audio/*`
-// representation and claims nothing else. It carries no matcher/objectTypes
-// claim — audio rows resolve to this renderer through the representation
-// provider, not through a semantic classifier.
+// representation. It carries no matcher — audio rows resolve to this renderer
+// through the representation provider, not through a semantic classifier.
+//
+// Per the ratified upload-typing ruling (epic cinatra#1785, owner entry 106-B),
+// this REQUIRED system-base pack also DECLARES exactly one explicit object type
+// (`@cinatra-ai/audio-artifact:recording`, claim "dedicated"): a human upload
+// mapped by mime (`audio/*`) is persisted under this declared type. Without the
+// declaration the mime-map would resolve to nothing post-#1824. The declaration
+// is AUTHORITATIVE in the `package.json` cinatra block (below).
 //
 // The AUTHORITATIVE manifest is the `cinatra` block in `package.json` (what the
 // host install pipeline + the marketplace publish gate read). This module
