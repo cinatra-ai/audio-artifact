@@ -16,7 +16,8 @@
       "default": "./src/index.ts"
     },
     "./src/renderers/detail": {
-      "import": "./src/renderers/detail.tsx"
+      "import": "./src/renderers/detail.tsx",
+      "default": "./src/renderers/detail.tsx"
     }
   },
   "scripts": {
