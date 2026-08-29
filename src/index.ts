@@ -51,7 +51,7 @@ export const audioArtifactManifest: AudioArtifactManifest = {
   },
   ui: {
     abiVersion: 1,
-    sdkAbiRange: "^2.4.0",
+    sdkAbiRange: "^2.5.0",
     renderers: {
       detail: {
         entry: "./src/renderers/detail.tsx",
