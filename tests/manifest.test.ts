@@ -123,7 +123,7 @@ describe("package.json manifest — the system-base audio identity", () => {
   it("declares a strict v1 ui block bound to the host SDK ABI", () => {
     const ui = pkg.cinatra.artifact.ui;
     expect(ui.abiVersion).toBe(1);
-    expect(ui.sdkAbiRange).toBe("^2.4.0");
+    expect(ui.sdkAbiRange).toBe("^2.5.0");
     expect(Object.keys(ui.renderers)).toEqual(["detail"]);
   });
 
