@@ -13,7 +13,7 @@ function props(overrides: {
   title?: string | null;
 }): ArtifactRendererProps {
   return {
-    propsApiVersion: 1,
+    propsApiVersion: 2,
     artifact: {
       id: "art_1",
       title: overrides.title === undefined ? "Interview take 3" : overrides.title,
@@ -23,7 +23,7 @@ function props(overrides: {
       createdAt: "2026-01-01T00:00:00.000Z",
       updatedAt: "2026-01-01T00:00:00.000Z",
       ownerLevel: "workspace",
-      visibility: "workspace",
+      visibility: "organization",
       sourceUrl: null,
     },
     representation: { revisionId: "rev_1", mime: "audio/mpeg" },
@@ -31,7 +31,7 @@ function props(overrides: {
       preview: overrides.preview === undefined ? "/api/artifacts/art_1/preview" : overrides.preview,
       download: overrides.download === undefined ? "/api/artifacts/art_1/download" : overrides.download,
     },
-    identity: { kind: "mime", extension: null, basis: null, selectable: false },
+    identity: { kind: "no-primary", extension: null },
     actions: {
       download: overrides.download === undefined ? "/api/artifacts/art_1/download" : overrides.download,
       openInSource: null,
@@ -103,11 +103,61 @@ describe("AudioArtifactDetail — the ported audio player", () => {
     // A defensive check: the host contract guarantees these objects, but a
     // malformed/partial snapshot must still degrade to the floor, not crash.
     const malformed = {
-      propsApiVersion: 1,
+      propsApiVersion: 2,
       artifact: { title: null },
     } as unknown as ArtifactRendererProps;
     const { container } = render(<AudioArtifactDetail {...malformed} />);
     expect(container.querySelector('[data-audio-artifact="floor"]')).not.toBeNull();
     expect((container.textContent ?? "").trim().length).toBeGreaterThan(0);
+  });
+});
+
+describe("AudioArtifactDetail — the byte road (props version 2)", () => {
+  const ISLAND = "/api/lifecycle-views/artifact-bytes?bc=sealed-preview";
+  const SESSION = "/api/artifacts/art_1/preview";
+
+  it("plays the byte reference and never the cookie-gated session route", () => {
+    const { container } = render(
+      <AudioArtifactDetail
+        {...props({})}
+        bytes={{ road: "island", preview: ISLAND, download: null }}
+      />,
+    );
+    expect(container.querySelector("audio")?.getAttribute("src")).toBe(ISLAND);
+    expect(container.innerHTML).not.toContain(SESSION);
+    expect(
+      container.querySelector('[data-audio-artifact="player"]')?.getAttribute("data-byte-road"),
+    ).toBe("island");
+  });
+
+  it("falls back to the session href on an older snapshot that carries no reference", () => {
+    const { container } = render(
+      <AudioArtifactDetail {...props({})} propsApiVersion={1} />,
+    );
+    expect(container.querySelector("audio")?.getAttribute("src")).toBe(SESSION);
+    expect(
+      container.querySelector('[data-audio-artifact="player"]')?.getAttribute("data-byte-road"),
+    ).toBe("session");
+  });
+
+  it("floors typed, never blank, when no road carries a playable address", () => {
+    const { container } = render(
+      <AudioArtifactDetail {...props({ preview: null, download: null })} propsApiVersion={1} />,
+    );
+    expect(container.querySelector("audio")).toBeNull();
+    expect(
+      container.querySelector('[data-audio-artifact="floor"]')?.getAttribute("data-byte-road"),
+    ).toBe("none");
+  });
+
+  it("offers the reference's own download address on the floor", () => {
+    const { container } = render(
+      <AudioArtifactDetail
+        {...props({ download: "/session-dl" })}
+        bytes={{ road: "island", preview: null, download: "/island-dl" }}
+      />,
+    );
+    expect(container.querySelector("a")?.getAttribute("href")).toBe("/island-dl");
+    expect(container.innerHTML).not.toContain("/session-dl");
   });
 });

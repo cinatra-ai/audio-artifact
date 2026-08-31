@@ -18,7 +18,10 @@
 
 export {
   type ArtifactRendererProps,
+  type ArtifactByteReference,
+  type ArtifactByteRoad,
   ARTIFACT_RENDERER_PROPS_API_VERSION,
+  ARTIFACT_RENDERER_PROPS_BYTE_REFERENCE_VERSION,
 } from "./artifact-renderer-props";
 
 /** The closed v1 renderer-slot names (`detail` = the artifact detail view;
@@ -55,7 +58,7 @@ export const audioArtifactManifest: AudioArtifactManifest = {
     renderers: {
       detail: {
         entry: "./src/renderers/detail.tsx",
-        propsApiVersion: 1,
+        propsApiVersion: 2,
         representations: ["audio/*"],
       },
     },
