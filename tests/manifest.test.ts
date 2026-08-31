@@ -5,6 +5,10 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 import { audioArtifactManifest } from "../src/index";
+import {
+  ARTIFACT_RENDERER_PROPS_API_VERSION,
+  ARTIFACT_RENDERER_PROPS_BYTE_REFERENCE_VERSION,
+} from "../src/artifact-renderer-props";
 
 const pkg = JSON.parse(
   readFileSync(fileURLToPath(new URL("../package.json", import.meta.url)), "utf8"),
@@ -127,12 +131,12 @@ describe("package.json manifest — the system-base audio identity", () => {
     expect(Object.keys(ui.renderers)).toEqual(["detail"]);
   });
 
-  it("the detail renderer requests NO host ports (v1 no-ports contract)", () => {
+  it("the detail renderer requests NO host ports (the no-ports contract)", () => {
     const detail = pkg.cinatra.artifact.ui.renderers.detail;
     for (const k of Object.keys(detail)) {
       expect(ARTIFACT_UI_RENDERER_ALLOWED_KEYS.has(k)).toBe(true);
     }
-    expect(detail.propsApiVersion).toBe(1);
+    expect(detail.propsApiVersion).toBe(2);
   });
 
   it("points the detail entry at a package-contained subpath that exists", () => {
@@ -148,5 +152,25 @@ describe("package.json manifest — the system-base audio identity", () => {
   it("keeps the typed src manifest in agreement with package.json", () => {
     expect(audioArtifactManifest.accepts).toEqual(pkg.cinatra.artifact.accepts);
     expect(audioArtifactManifest.ui).toEqual(pkg.cinatra.artifact.ui);
+  });
+});
+
+describe("audio-artifact — the declared props version and the exports road", () => {
+  it("declares the byte-road props version, and the local mirror agrees", () => {
+    expect(pkg.cinatra.artifact.ui.renderers.detail.propsApiVersion).toBe(
+      ARTIFACT_RENDERER_PROPS_API_VERSION,
+    );
+    expect(ARTIFACT_RENDERER_PROPS_API_VERSION).toBe(2);
+    expect(ARTIFACT_RENDERER_PROPS_BYTE_REFERENCE_VERSION).toBe(2);
+  });
+
+  it("resolves the declared renderer entry through the package exports map", () => {
+    const pkgExports = (
+      JSON.parse(
+        readFileSync(fileURLToPath(new URL("../package.json", import.meta.url)), "utf8"),
+      ) as { exports: Record<string, unknown> }
+    ).exports;
+    const entry = pkg.cinatra.artifact.ui.renderers.detail.entry;
+    expect(Object.keys(pkgExports)).toContain(entry.replace(/\.tsx?$/, ""));
   });
 });
