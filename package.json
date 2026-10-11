@@ -18,11 +18,15 @@
     "./src/renderers/detail": {
       "import": "./src/renderers/detail.tsx",
       "default": "./src/renderers/detail.tsx"
-    }
+    },
+    "./src/renderers/list-row": "./src/renderers/list-row.tsx"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "lucide-react": "^1.20.0"
   },
   "peerDependencies": {
     "react": "^19.0.0",
@@ -67,6 +71,10 @@
             "representations": [
               "audio/*"
             ]
+          },
+          "listRow": {
+            "entry": "./src/renderers/list-row.tsx",
+            "propsApiVersion": 1
           }
         }
       },

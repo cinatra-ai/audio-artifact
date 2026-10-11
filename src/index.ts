@@ -25,8 +25,9 @@ export {
 } from "./artifact-renderer-props";
 
 /** The closed v1 renderer-slot names (`detail` = the artifact detail view;
- * `preview` = the neutral inline preview). This base ships `detail` only. */
-export type ArtifactUiSlot = "detail" | "preview";
+ * `preview` = the neutral inline preview; `listRow` = the row icon in the
+ * Artifacts list). This base ships `detail` and `listRow`. */
+export type ArtifactUiSlot = "detail" | "preview" | "listRow";
 
 /** A single slot renderer. v1 requests NO host ports — only these three keys. */
 export interface ArtifactUiRenderer {
@@ -60,6 +61,10 @@ export const audioArtifactManifest: AudioArtifactManifest = {
         entry: "./src/renderers/detail.tsx",
         propsApiVersion: 2,
         representations: ["audio/*"],
+      },
+      listRow: {
+        entry: "./src/renderers/list-row.tsx",
+        propsApiVersion: 1,
       },
     },
   },
