@@ -128,7 +128,7 @@ describe("package.json manifest — the system-base audio identity", () => {
     const ui = pkg.cinatra.artifact.ui;
     expect(ui.abiVersion).toBe(1);
     expect(ui.sdkAbiRange).toBe("^2.5.0");
-    expect(Object.keys(ui.renderers)).toEqual(["detail"]);
+    expect(Object.keys(ui.renderers)).toEqual(["detail", "listRow"]);
   });
 
   it("the detail renderer requests NO host ports (the no-ports contract)", () => {
